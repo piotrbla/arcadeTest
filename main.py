@@ -17,21 +17,21 @@ keys = [False, False, False, False]
 player_position = [100, 100]
 acc = [0, 0]
 arrows = []
-badtimer = 100
-badtimer1 = 0
-badguys = [[640, 100]]
-healthvalue = 194
+bad_timer = 100
+bad_timer_big = 0
+bad_guys = [[640, 100]]
+health_value = 194
 
 player = pygame.image.load("resources/images/dude.png")
 grass = pygame.image.load("resources/images/grass.png")
 castle = pygame.image.load("resources/images/castle.png")
 arrow = pygame.image.load("resources/images/bullet.png")
-badguyimg1 = pygame.image.load("resources/images/badguy.png")
-badguyimg = badguyimg1
-healthbar = pygame.image.load("resources/images/healthbar.png")
+bad_guy_image_1 = pygame.image.load("resources/images/badguy.png")
+bad_guy_image = bad_guy_image_1
+health_bar = pygame.image.load("resources/images/healthbar.png")
 health = pygame.image.load("resources/images/health.png")
-gameover = pygame.image.load("resources/images/gameover.png")
-youwin = pygame.image.load("resources/images/youwin.png")
+game_over = pygame.image.load("resources/images/gameover.png")
+you_win = pygame.image.load("resources/images/youwin.png")
 
 hit = pygame.mixer.Sound("resources/audio/explode.wav")
 enemy = pygame.mixer.Sound("resources/audio/enemy.wav")
@@ -71,51 +71,48 @@ while running:
         for projectile in arrows:
             arrow1 = pygame.transform.rotate(arrow, 360 - projectile[0] * 57.29)
             screen.blit(arrow1, (projectile[1], projectile[2]))
-    if badtimer == 0:
-        badguys.append([640, random.randint(50, 430)])
-        badtimer = 100 - (badtimer1 * 2)
-        if badtimer1 >= 35:
-            badtimer1 = 35
+    if bad_timer == 0:
+        bad_guys.append([640, random.randint(50, 430)])
+        bad_timer = 100 - (bad_timer_big * 2)
+        if bad_timer_big >= 35:
+            bad_timer_big = 35
         else:
-            badtimer1 += 5
+            bad_timer_big += 5
     index = 0
-    for badguy in badguys:
-        if badguy[0] < -64:
-            badguys.pop(index)
-        badguy[0] -= 7
-        # 6.3.1 - Attack castle
-        badrect = pygame.Rect(badguyimg.get_rect())
-        badrect.top = badguy[1]
-        badrect.left = badguy[0]
-        if badrect.left < 64:
+    for bad_guy in bad_guys:
+        if bad_guy[0] < -64:
+            bad_guys.pop(index)
+        bad_guy[0] -= 7
+        bad_rectangle = pygame.Rect(bad_guy_image.get_rect())
+        bad_rectangle.top = bad_guy[1]
+        bad_rectangle.left = bad_guy[0]
+        if bad_rectangle.left < 64:
             hit.play()
-            healthvalue -= random.randint(5, 20)
-            badguys.pop(index)
+            health_value -= random.randint(5, 20)
+            bad_guys.pop(index)
         # 6.3.2 - Check for collisions
         index1 = 0
         for bullet in arrows:
             bullrect = pygame.Rect(arrow.get_rect())
             bullrect.left = bullet[1]
             bullrect.top = bullet[2]
-            if badrect.colliderect(bullrect):
+            if bad_rectangle.colliderect(bullrect):
                 enemy.play()
                 acc[0] += 1
-                badguys.pop(index)
+                bad_guys.pop(index)
                 arrows.pop(index1)
             index1 += 1
-        # 6.3.3 - Next bad guy
         index += 1
-    for badguy in badguys:
-        screen.blit(badguyimg, badguy)
-    # 6.4 - Draw clock
+    for bad_guy in bad_guys:
+        screen.blit(bad_guy_image, bad_guy)
     font = pygame.font.Font(None, 24)
-    survivedtext = font.render(str((90000 - pygame.time.get_ticks()) // 60000) + ":" + str(
+    survived_text = font.render(str((90000 - pygame.time.get_ticks()) // 60000) + ":" + str(
         (90000 - pygame.time.get_ticks()) // 1000 % 60).zfill(2), True, (0, 0, 0))
-    textRect = survivedtext.get_rect()
-    textRect.topright = [635, 5]
-    screen.blit(survivedtext, textRect)
-    screen.blit(healthbar, (5, 5))
-    for health1 in range(healthvalue):
+    text_rectangle = survived_text.get_rect()
+    text_rectangle.topright = [635, 5]
+    screen.blit(survived_text, text_rectangle)
+    screen.blit(health_bar, (5, 5))
+    for health1 in range(health_value):
         screen.blit(health, (health1 + 8, 8))
     pygame.display.flip()
     for event in pygame.event.get():
@@ -156,12 +153,11 @@ while running:
         player_position[0] -= 5
     elif keys[3]:
         player_position[0] += 5
-    badtimer -= 1
-    # 10 - Win/Lose check
+    bad_timer -= 1
     if pygame.time.get_ticks() >= 90000:
         running = 0
         exitcode = 1
-    if healthvalue <= 0:
+    if health_value <= 0:
         running = 0
         exitcode = 0
     if acc[1] != 0:
@@ -173,20 +169,20 @@ if exitcode == 0:
     pygame.font.init()
     font = pygame.font.Font(None, 24)
     text = font.render("Accuracy: " + str(accuracy) + "%", True, (255, 0, 0))
-    textRect = text.get_rect()
-    textRect.centerx = screen.get_rect().centerx
-    textRect.centery = screen.get_rect().centery + 24
-    screen.blit(gameover, (0, 0))
-    screen.blit(text, textRect)
+    text_rectangle = text.get_rect()
+    text_rectangle.centerx = screen.get_rect().centerx
+    text_rectangle.centery = screen.get_rect().centery + 24
+    screen.blit(game_over, (0, 0))
+    screen.blit(text, text_rectangle)
 else:
     pygame.font.init()
     font = pygame.font.Font(None, 24)
     text = font.render("Accuracy: " + str(accuracy) + "%", True, (0, 255, 0))
-    textRect = text.get_rect()
-    textRect.centerx = screen.get_rect().centerx
-    textRect.centery = screen.get_rect().centery + 24
-    screen.blit(youwin, (0, 0))
-    screen.blit(text, textRect)
+    text_rectangle = text.get_rect()
+    text_rectangle.centerx = screen.get_rect().centerx
+    text_rectangle.centery = screen.get_rect().centery + 24
+    screen.blit(you_win, (0, 0))
+    screen.blit(text, text_rectangle)
 
 while 1:
     for event in pygame.event.get():
